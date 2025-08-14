@@ -26,7 +26,9 @@ impl kubewarden::settings::Validatable for Settings {
             (None, Some(denied)) if denied.is_empty() => {
                 Err("Denied priority classes cannot be empty.".to_string())
             }
-            (None, None) => Err("At least one of allowed or denied priority classes must be set.".to_string()),
+            (None, None) => {
+                Err("At least one of allowed or denied priority classes must be set.".to_string())
+            }
             _ => Ok(()),
         }
     }
