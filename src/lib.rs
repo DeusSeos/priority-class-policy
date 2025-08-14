@@ -32,12 +32,10 @@ fn validate(payload: &[u8]) -> CallResult {
     let denied = &validation_request.settings.denied_priority_classes;
 
     match validation_request.extract_pod_spec_from_object() {
-        Ok(Some(pod_spec)) => {
-            match validate_pod_priority_class(pod_spec, allowed, denied) {
-                Ok(_) => kubewarden::accept_request(),
-                Err(err) => kubewarden::reject_request(Some(err), None, None, None),
-            }
-        }
+        Ok(Some(pod_spec)) => match validate_pod_priority_class(pod_spec, allowed, denied) {
+            Ok(_) => kubewarden::accept_request(),
+            Err(err) => kubewarden::reject_request(Some(err), None, None, None),
+        },
         Ok(None) => {
             warn!(LOG_DRAIN, "no PodSpec found");
             kubewarden::accept_request()
@@ -73,7 +71,7 @@ fn validate_pod_priority_class(
         (Some(allowed), None) => {
             if !allowed.contains(priority_class_name) {
                 return Err(format!(
-                    "Priority class \"{}\" is not in allowed list",
+                    "Priority class \"{}\" is not in allowed list.",
                     priority_class_name
                 ));
             }
@@ -81,7 +79,7 @@ fn validate_pod_priority_class(
         (None, Some(denied)) => {
             if denied.contains(priority_class_name) {
                 return Err(format!(
-                    "Priority class \"{}\" is denied",
+                    "Priority class \"{}\" is in denied list.",
                     priority_class_name
                 ));
             }

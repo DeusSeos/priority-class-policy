@@ -12,16 +12,21 @@ pub(crate) struct Settings {
 
 impl kubewarden::settings::Validatable for Settings {
     fn validate(&self) -> Result<(), String> {
-        match (&self.allowed_priority_classes, &self.denied_priority_classes) {
-            (Some(allowed), Some(denied)) if !allowed.is_empty() && !denied.is_empty() => {
-                Err("Both allowed and denied priority classes are set. Please use only one.".to_string())
-            }
+        match (
+            &self.allowed_priority_classes,
+            &self.denied_priority_classes,
+        ) {
+            (Some(allowed), Some(denied)) if !allowed.is_empty() && !denied.is_empty() => Err(
+                "Both allowed and denied priority classes are set. Please use only one."
+                    .to_string(),
+            ),
             (Some(allowed), None) if allowed.is_empty() => {
                 Err("Allowed priority classes cannot be empty.".to_string())
             }
             (None, Some(denied)) if denied.is_empty() => {
                 Err("Denied priority classes cannot be empty.".to_string())
             }
+            (None, None) => Err("At least one of allowed or denied priority classes must be set.".to_string()),
             _ => Ok(()),
         }
     }
@@ -44,7 +49,6 @@ mod tests {
     #[test]
     fn validate_nonempty_allowed_settings() {
         let settings = Settings {
-
             allowed_priority_classes: Some(HashSet::from([
                 "high-priority".to_string(),
                 "low-priority".to_string(),
@@ -64,7 +68,6 @@ mod tests {
             ])),
         };
         assert!(settings.validate().is_ok());
-
     }
 
     #[test]
@@ -81,9 +84,4 @@ mod tests {
         };
         assert!(settings.validate().is_err());
     }
-
-    
-
-
-
 }
